@@ -68,3 +68,17 @@ If you are deploying manually as a **Web Service** and connected this repository
 2. **Avoid adding `GEMINI_API_KEY` manually twice!** If you see a *"Duplicate key GEMINI_API_KEY is not allowed"* error, simply click the **Trash Can icon 🗑️** next to your manual environment variable row to delete the duplicate.
 3. Fill in your Gemini API key inside the remaining, single environment variable input.
 4. Click **Deploy Web Service** to start!
+
+---
+
+## ⚡ Zero-Configuration Vercel Deployment
+
+We have fully pre-configured the project for serverless hosting on Vercel using `vercel.json` and a serverless entrypoint in `api/index.py`.
+
+### How to Deploy on Vercel's Free Hobby Tier:
+1. Go to the [Vercel Dashboard](https://vercel.com/dashboard) and log in with your **GitHub account**.
+2. Click **Add New...** -> **Project**.
+3. Import this `mcar-platform` repository.
+4. Keep the **Framework Preset** as **Other** (Vercel will automatically parse our custom routing config).
+5. Under **Environment Variables**, add `GEMINI_API_KEY` and set it to your Google Gemini API Key.
+6. Click **Deploy**! Vercel will launch your live site instantly on their global edge network.
