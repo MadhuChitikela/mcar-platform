@@ -3,14 +3,14 @@
 # MCAR Platform 🚀
 ### Multi-Channel Auto Reply & AI-Powered Conversational Automation Engine
 
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-success?style=flat-square&logo=vercel&logoColor=white&color=000000)](https://mcar-platform.vercel.app)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-success?style=flat-square&logo=vercel&logoColor=white&color=000000)](https://mcar-platform.vercel.app/)
 [![Render Blueprint](https://img.shields.io/badge/Render-Blueprint-blue?style=flat-square&logo=render&logoColor=white&color=4640e5)](https://dashboard.render.com)
 [![Python Version](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python&logoColor=white&color=3776AB)](https://python.org)
 [![Gemini Core](https://img.shields.io/badge/Gemini%20Core-Active-cyan?style=flat-square&logo=google-gemini&logoColor=white&color=1a73e8)](https://ai.google.dev/)
 
 **MCAR (Multi-Channel Auto Reply)** is an enterprise-grade conversational middleware and unified inbox architecture designed to automate client communications across **WhatsApp**, **Instagram**, **Email**, and **Voice Lines**. Powered by **Google Gemini 1.5**, it features dynamic RAG vector lookups, automated lead profiling, sentiment analysis, and seamless backend synchronizations.
 
-[Explore Platform](https://mcar-platform.vercel.app) • [View Blueprint](render.yaml) • [Report Bug](https://github.com/MadhuChitikela/mcar-platform/issues)
+[Explore Platform](https://mcar-platform.vercel.app/) • [View Blueprint](render.yaml) • [Report Bug](https://github.com/MadhuChitikela/mcar-platform/issues)
 
 </div>
 
