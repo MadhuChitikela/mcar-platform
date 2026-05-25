@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCAR - Multi-Channel Auto Reply & Voice Automation Platform</title>
+    <!-- CSS Link -->
+    <link rel="stylesheet" href="/static/index.css">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN (Premium Metrics Differentiator) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- App Header -->
+    <header>
+        <div class="brand-section">
+            <div class="brand-logo">
+                <svg viewBox="0 0 32 32" style="width: 26px; height: 26px;" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="ribbon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" />
+                            <stop offset="100%" stop-color="#cbd5e1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Overlapping custom geometric vector ribbons representing a premium, human-designed 'M' logo -->
+                    <path d="M6 26 L11 8 L16 19 L11 26 Z" fill="url(#ribbon-grad)" opacity="0.9" />
+                    <path d="M26 26 L21 8 L16 19 L21 26 Z" fill="url(#ribbon-grad)" opacity="0.75" />
+                    <path d="M11 8 L16 15 L21 8 L16 12 Z" fill="#ffffff" />
+                    <circle cx="16" cy="19" r="2.5" fill="#ffffff" style="filter: drop-shadow(0 2px 4px rgba(255,255,255,0.45));" />
+                </svg>
+            </div>
+            <div class="brand-name-group">
+                <h1>MCAR Platform</h1>
+                <p>MULTI-CHANNEL BUSINESS AUTOMATION</p>
+            </div>
+        </div>
+        <div class="header-status">
+            <button class="filter-btn" style="display: flex; align-items: center; gap: 8px; font-weight: 600; background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan)); color: white; border-color: transparent;" onclick="openOwnerModal()" title="Configure CA Firm Accounts">
+                <i class="fa-solid fa-user-gear"></i> Owner Setup
+            </button>
+            <button class="filter-btn" style="display: flex; align-items: center; gap: 8px; font-weight: 600;" onclick="openAnalyticsModal()">
+                <i class="fa-solid fa-chart-pie"></i> Metrics
+            </button>
+            <div id="sheetsStatusBadge" class="status-badge gemini-simulated">
+                <i class="fa-solid fa-table-cells"></i> Sheets: Disconnected
+            </div>
+            <div id="geminiBadge" class="status-badge gemini-live">
+                <div class="pulse-dot"></div>
+                <span id="geminiBadgeText">Gemini Core Active</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Left: Inbox List -->
+        <div class="sidebar-conversations">
+            <div class="sidebar-title">
+                <span>Active Channels</span>
+                <i class="fa-solid fa-sliders text-muted"></i>
+            </div>
+            
+            <div class="channel-filter">
+                <button class="filter-btn active" onclick="filterChannel('All')">All</button>
+                <button class="filter-btn" onclick="filterChannel('WhatsApp')"><i class="fa-brands fa-whatsapp"></i></button>
+                <button class="filter-btn" onclick="filterChannel('Instagram')"><i class="fa-brands fa-instagram"></i></button>
+                <button class="filter-btn" onclick="filterChannel('Voice Call')"><i class="fa-solid fa-phone"></i></button>
+                <button class="filter-btn" onclick="filterChannel('Email')"><i class="fa-solid fa-envelope"></i></button>
+            </div>
+
+            <div class="conversation-list" id="conversationListContainer">
+                <!-- Loaded Dynamically -->
+            </div>
+
+            <!-- Owner Accounts Configuration Summary Widget -->
+            <div class="owner-config-summary" style="padding: 15px 20px; border-top: 1px solid var(--panel-border); background: rgba(124, 58, 237, 0.02); font-size: 0.72rem; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--accent-purple); font-family: var(--font-outfit); text-transform: uppercase; letter-spacing: 0.5px;">
+                    <span><i class="fa-solid fa-circle-user"></i> <span id="summaryBizName">Karan & Associates CA</span></span>
+                    <span style="cursor: pointer; color: var(--accent-cyan);" onclick="openOwnerModal()" title="Configure Accounts"><i class="fa-solid fa-pen-to-square"></i> Edit</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; color: var(--text-secondary);">
+                    <div><i class="fa-brands fa-whatsapp" style="color:#25d366; width: 14px;"></i> <span id="summaryWhatsapp">+91 98765 43210</span></div>
+                    <div><i class="fa-brands fa-instagram" style="color:#e1306c; width: 14px;"></i> <span id="summaryInstagram">@your_ca_firm</span></div>
+                    <div style="grid-column: span 2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <i class="fa-solid fa-envelope" style="color:var(--accent-cyan); width: 14px;"></i> <span id="summaryEmail">contact@cafirm.com</span>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <i class="fa-solid fa-phone" style="color:var(--accent-gold); width: 14px;"></i> <span id="summaryVoice">+91 12345 67890</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel: Conversational Workspace -->
+        <div class="center-chat-area" id="chatArea">
+            <div class="chat-header">
+                <div class="active-lead-title">
+                    <h3 id="activeChatName">Select a Conversation</h3>
+                    <p id="activeChatContact">Choose a lead from the sidebar or click simulate below</p>
+                </div>
+                <div class="takeover-action" id="takeoverContainer" style="display: none;">
+                    <span class="takeover-label">Human Takeover</span>
+                    <label class="switch">
+                        <input type="checkbox" id="takeoverToggle" onchange="toggleTakeover()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Voice Call Simulation Interface Overlay (Active when Voice Call is selected) -->
+            <div class="voice-call-overlay" id="voiceOverlay" style="display: none;">
+                <div class="call-card glass-panel">
+                    <div class="avatar-ring">
+                        <div class="avatar-circle">
+                            <i class="fa-solid fa-phone-volume"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 id="voiceCallName" style="font-family: var(--font-outfit); font-weight: 600;">Ananya Iyer</h2>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;" id="voiceCallStatus">Voice Assistant Connected</p>
+                    </div>
+                    
+                    <div class="call-timer" id="voiceCallTimer">00:00</div>
+                    
+                    <div class="voice-waveform">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    
+                    <p style="font-size: 0.78rem; color: var(--text-muted); max-width: 250px;">
+                        Interactive Voice Simulation. Click mic to speak or listen to AI responses.
+                    </p>
+
+                    <div class="call-controls">
+                        <button class="call-btn decline" onclick="endVoiceCall()" title="End call">
+                            <i class="fa-solid fa-phone-slash"></i>
+                        </button>
+                        <button class="call-btn mic" id="voiceListenBtn" onclick="readLastAiReply()" title="Listen to AI Reply">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <!-- NEW: Speak mic button (Speech to Text Differentiator!) -->
+                        <button class="call-btn mic" id="voiceSpeakBtn" onclick="toggleVoiceInput()" title="Speak to AI Agent">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chats Log list -->
+            <div class="messages-container" id="messagesContainer">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.5;">
+                    <i class="fa-solid fa-comments" style="font-size: 3rem; margin-bottom: 15px; color: var(--accent-purple);"></i>
+                    <p style="font-family: var(--font-outfit); font-size: 1.1rem;">No conversation active</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">Pick a mock chat or trigger a simulated event below!</p>
+                </div>
+            </div>
+
+            <!-- Messaging inputs -->
+            <div class="chat-footer" id="chatFooter" style="display: none;">
+                <div class="takeover-warning" id="takeoverWarning" style="display: none;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Human Takeover Active. AI replies are paused. Respond manually.</span>
+                </div>
+                <div class="input-container">
+                    <input type="text" id="chatInputField" class="chat-input" placeholder="Type your manual reply here..." onkeydown="handleInputKey(event)">
+                    <button class="send-btn" onclick="sendManualReply()" title="Send message">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Right: Analytics & Profile -->
+        <div class="sidebar-profile" id="profileSidebar">
+            <!-- Lead Profile Section -->
+            <div>
+                <div class="panel-section-title">
+                    <i class="fa-solid fa-id-card"></i> Lead Insights
+                </div>
+                
+                <div class="glass-panel" style="padding: 15px;">
+                    <div class="profile-card-header">
+                        <div class="profile-avatar" id="profileAvatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="profile-name" id="leadName">Sneha Sharma</div>
+                        <div class="profile-company" id="leadCompany">Tata Nex</div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+                        <div class="lead-score-gauge">
+                            <div>
+                                <div class="score-lbl">Conversion Score</div>
+                                <div class="score-value" id="leadScore">92%</div>
+                            </div>
+                            <div style="font-size: 1.5rem; color: var(--accent-cyan);" id="sentimentIcon">
+                                <i class="fa-solid fa-face-smile"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" id="scoreBarFill" style="width: 92%;"></div>
+                        </div>
+                        
+                        <div class="meta-field">
+                            <span class="meta-lbl">Contact info</span>
+                            <span class="meta-val" id="leadContactInfo">+91 98765 43210</span>
+                        </div>
+                        
+                        <div class="meta-field">
+                            <span class="meta-lbl">Estimated Interest</span>
+                            <span class="meta-val" id="leadInterest">Enterprise Tier</span>
+                        </div>
+                        
+                        <div class="meta-field">
+                            <span class="meta-lbl">AI Extracted Summary</span>
+                            <p class="lead-summary-box" id="leadSummary">
+                                Interested in scaling API routes, high volume limits and Sheets syncing. High intent buyer.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual mini-calendar appointments display -->
+            <div>
+                <div class="panel-section-title">
+                    <i class="fa-solid fa-calendar-days"></i> Confirmed Bookings
+                </div>
+                <div class="calendar-widget glass-panel">
+                    <div class="calendar-header">
+                        <span>Active slots</span>
+                        <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald);"></i>
+                    </div>
+                    <div class="calendar-slots" id="calendarSlotsContainer">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integrations Section -->
+            <div>
+                <div class="panel-section-title">
+                    <i class="fa-solid fa-puzzle-piece"></i> Platform Automations
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    
+                    <!-- Google Sheets Integration -->
+                    <div class="integration-item glass-panel">
+                        <div class="integration-header">
+                            <div class="integration-title">
+                                <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Google Sheets Capture
+                            </div>
+                            <div class="integration-status-light">
+                                <span class="status-light inactive" id="sheetsStatusLight"></span>
+                                <span id="sheetsStatusText" style="color: var(--text-secondary);">Offline</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.3;">
+                            Automatically captures AI-extracted lead names, contact info, interest, and sentiment to your workbook.
+                        </p>
+                        <button class="integration-btn" id="sheetsToggleBtn" onclick="toggleGoogleSheets()">
+                            Connect Sheets Sync
+                        </button>
+                    </div>
+
+                    <!-- PDF RAG Knowledge Base -->
+                    <div class="integration-item glass-panel">
+                        <div class="integration-header">
+                            <div class="integration-title">
+                                <i class="fa-solid fa-brain" style="color: var(--accent-purple);"></i> Knowledge Base (RAG)
+                            </div>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.3;">
+                            Paste custom context or upload a PDF/text file below. The Gemini AI will use this context to auto-reply.
+                        </p>
+                        <textarea class="rag-textarea" id="ragTextArea" placeholder="E.g., Our pricing is $100 for basic tier. We provide custom integration services..."></textarea>
+                        
+                        <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                            <input type="file" id="ragFileInput" accept=".txt,.pdf" style="display: none;" onchange="handleRagFileUpload()">
+                            <button class="integration-btn" style="flex: 1;" onclick="document.getElementById('ragFileInput').click()">
+                                <i class="fa-solid fa-file-pdf"></i> Upload File
+                            </button>
+                            <button class="integration-btn active-green" style="flex: 1;" onclick="saveRagKnowledge()">
+                                Update Text
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Footer Disclaimer -->
+    <footer style="height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-top: 1px solid var(--panel-border); font-size: 0.72rem; color: var(--text-muted); gap: 6px; z-index: 10;">
+        <i class="fa-solid fa-circle-info" style="color: var(--accent-purple);"></i>
+        <span style="font-weight: 500;">In production, we would integrate Twilio or Meta APIs to send/receive real messages. For this demo, the logic is identical – the AI receives text, processes it, and replies.</span>
+    </footer>
+
+    <!-- Floating Simulator Action Controls -->
+    <button class="floating-simulator-trigger" onclick="toggleSimulatorDrawer()">
+        <i class="fa-solid fa-circle-play"></i> Simulator Console
+    </button>
+
+    <div class="simulator-drawer glass-panel" id="simulatorDrawer">
+        <div class="simulator-drawer-header">
+            <h4><i class="fa-solid fa-bolt"></i> Event Simulator</h4>
+            <button class="sim-close-btn" onclick="toggleSimulatorDrawer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="simulator-form">
+            <div class="form-group">
+                <label>Select Channel</label>
+                <select class="sim-select" id="simChannel" onchange="updateSimOwnerChannelDisplay()">
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Email">Email</option>
+                    <option value="Voice Call">Voice Call (Phone)</option>
+                </select>
+                <span id="simChannelOwnerText" style="font-size: 0.65rem; color: var(--accent-purple); font-weight: 600; margin-top: 4px;">Targeting WA: +91 98765 43210</span>
+            </div>
+            
+            <div class="form-group">
+                <label>Customer Name</label>
+                <input type="text" class="sim-input" id="simName" placeholder="e.g. Rajesh Kumar">
+            </div>
+
+            <div class="form-group">
+                <label>Contact Info</label>
+                <input type="text" class="sim-input" id="simContact" placeholder="e.g. +91 99887 76655 or email">
+            </div>
+
+            <div class="form-group">
+                <label>Message Content</label>
+                <textarea class="sim-textarea" id="simMessage" placeholder="Type what the lead says..."></textarea>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Quick Templates</label>
+                <div class="sim-templates">
+                    <div class="template-badge" onclick="applyTemplate('pricing')">💰 Price Sheet?</div>
+                    <div class="template-badge" onclick="applyTemplate('appointment')">📅 Book Demo</div>
+                    <div class="template-badge" onclick="applyTemplate('integration')">🔌 Salesforce Sync</div>
+                    <div class="template-badge" onclick="applyTemplate('complaint')">⚠️ System Delay</div>
+                </div>
+            </div>
+
+            <button class="sim-submit-btn" onclick="triggerSimulation()">
+                Trigger Inbound Event
+            </button>
+        </div>
+    </div>
+
+    <!-- Analytics Metrics Modal -->
+    <div id="analyticsModal" class="analytics-modal-overlay" onclick="closeAnalyticsModal(event)">
+        <div class="analytics-modal-card glass-panel" onclick="event.stopPropagation()">
+            <div class="simulator-drawer-header">
+                <h4><i class="fa-solid fa-chart-line"></i> Platform Operations & Conversion Metrics</h4>
+                <button class="sim-close-btn" onclick="closeAnalyticsModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="analytics-grid">
+                <!-- Channel Performance -->
+                <div class="chart-container">
+                    <canvas id="channelChart"></canvas>
+                </div>
+                
+                <!-- Sentiment analysis -->
+                <div class="chart-container">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--panel-border); padding: 15px; border-radius: 12px; display: flex; justify-content: space-around; text-align: center;">
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Avg Conversion Score</div>
+                    <div id="metricAvgScore" style="font-size: 1.8rem; font-weight: 700; color: var(--accent-emerald); margin-top: 4px;">91%</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">AI Automation Rate</div>
+                    <div id="metricAiRate" style="font-size: 1.8rem; font-weight: 700; color: var(--accent-cyan); margin-top: 4px;">85%</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Active Leads</div>
+                    <div id="metricTotalLeads" style="font-size: 1.8rem; font-weight: 700; color: var(--accent-purple); margin-top: 4px;">4</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Owner Account Settings Modal -->
+    <div id="ownerModal" class="analytics-modal-overlay" onclick="closeOwnerModal(event)">
+        <div class="analytics-modal-card glass-panel" style="max-width: 480px;" onclick="event.stopPropagation()">
+            <div class="simulator-drawer-header">
+                <h4><i class="fa-solid fa-user-gear"></i> Business Credentials Configuration</h4>
+                <button class="sim-close-btn" onclick="closeOwnerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 5px;">
+                Configure your CA firm's communication channels. The unified AI assistant replies to incoming customer queries on behalf of these credentials.
+            </p>
+            
+            <div class="simulator-form" style="gap: 15px;">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-signature" style="color: var(--accent-purple);"></i> CA Firm / Business Name</label>
+                    <input type="text" id="ownerBusinessName" class="sim-input" placeholder="e.g. Karan & Associates CA" style="font-size: 0.85rem; padding: 10px;">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp Business Number</label>
+                    <input type="text" id="ownerWhatsapp" class="sim-input" placeholder="e.g. +91 98765 43210" style="font-size: 0.85rem; padding: 10px;">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fa-brands fa-instagram" style="color: #e1306c;"></i> Instagram Business Handle</label>
+                    <input type="text" id="ownerInstagram" class="sim-input" placeholder="e.g. @your_ca_firm" style="font-size: 0.85rem; padding: 10px;">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fa-solid fa-envelope" style="color: var(--accent-cyan);"></i> Corporate Business Email</label>
+                    <input type="email" id="ownerEmail" class="sim-input" placeholder="e.g. contact@cafirm.com" style="font-size: 0.85rem; padding: 10px;">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fa-solid fa-phone" style="color: var(--accent-gold);"></i> Interactive Voice Line</label>
+                    <input type="text" id="ownerVoice" class="sim-input" placeholder="e.g. +91 12345 67890" style="font-size: 0.85rem; padding: 10px;">
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="sim-submit-btn" style="flex: 1; padding: 12px;" onclick="saveOwnerSettings()">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Configurations
+                    </button>
+                    <button class="integration-btn" style="flex: 0.5; padding: 12px;" onclick="closeOwnerModal()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" style="position: fixed; bottom: 20px; left: 20px; background: rgba(139, 92, 246, 0.9); padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; font-weight: 500; font-size: 0.85rem; transform: translateY(100px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 999; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-bell"></i> <span id="toastText">Lead synchronized to Google Sheets!</span>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        let conversations = [];
+        let activeConvId = null;
+        let selectedChannelFilter = 'All';
+        let sheetsConnected = false;
+        let callTimerInterval = null;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchConversations();
+            fetchPlatformStats();
+            fetchAppointments();
+            initOwnerSettings();
+        });
+
+        // ----------------- OWNER SETTINGS LOGIC -----------------
+        function initOwnerSettings() {
+            if (!localStorage.getItem('ownerBusinessName')) {
+                localStorage.setItem('ownerBusinessName', 'Karan & Associates CA');
+            }
+            if (!localStorage.getItem('ownerWhatsapp')) {
+                localStorage.setItem('ownerWhatsapp', '+91 98765 43210');
+            }
+            if (!localStorage.getItem('ownerInstagram')) {
+                localStorage.setItem('ownerInstagram', '@your_ca_firm');
+            }
+            if (!localStorage.getItem('ownerEmail')) {
+                localStorage.setItem('ownerEmail', 'contact@cafirm.com');
+            }
+            if (!localStorage.getItem('ownerVoice')) {
+                localStorage.setItem('ownerVoice', '+91 12345 67890');
+            }
+            updateOwnerDisplays();
+            
+            // Sync current configurations with backend RAG system on launch
+            syncOwnerSettingsToBackend();
+        }
+
+        function openOwnerModal() {
+            document.getElementById('ownerBusinessName').value = localStorage.getItem('ownerBusinessName') || 'Karan & Associates CA';
+            document.getElementById('ownerWhatsapp').value = localStorage.getItem('ownerWhatsapp') || '+91 98765 43210';
+            document.getElementById('ownerInstagram').value = localStorage.getItem('ownerInstagram') || '@your_ca_firm';
+            document.getElementById('ownerEmail').value = localStorage.getItem('ownerEmail') || 'contact@cafirm.com';
+            document.getElementById('ownerVoice').value = localStorage.getItem('ownerVoice') || '+91 12345 67890';
+            document.getElementById('ownerModal').classList.add('active');
+        }
+
+        function closeOwnerModal() {
+            document.getElementById('ownerModal').classList.remove('active');
+        }
+
+        async function saveOwnerSettings() {
+            const bizName = document.getElementById('ownerBusinessName').value.trim() || 'Karan & Associates CA';
+            const wa = document.getElementById('ownerWhatsapp').value.trim() || '+91 98765 43210';
+            const ig = document.getElementById('ownerInstagram').value.trim() || '@your_ca_firm';
+            const email = document.getElementById('ownerEmail').value.trim() || 'contact@cafirm.com';
+            const voice = document.getElementById('ownerVoice').value.trim() || '+91 12345 67890';
+
+            localStorage.setItem('ownerBusinessName', bizName);
+            localStorage.setItem('ownerWhatsapp', wa);
+            localStorage.setItem('ownerInstagram', ig);
+            localStorage.setItem('ownerEmail', email);
+            localStorage.setItem('ownerVoice', voice);
+
+            showToast("CA Firm business credentials updated!", false);
+            closeOwnerModal();
+            updateOwnerDisplays();
+            
+            // Update backend state
+            await syncOwnerSettingsToBackend(bizName, wa, ig, email, voice);
+        }
+
+        async function syncOwnerSettingsToBackend(bizName, wa, ig, email, voice) {
+            bizName = bizName || localStorage.getItem('ownerBusinessName') || 'Karan & Associates CA';
+            wa = wa || localStorage.getItem('ownerWhatsapp') || '+91 98765 43210';
+            ig = ig || localStorage.getItem('ownerInstagram') || '@your_ca_firm';
+            email = email || localStorage.getItem('ownerEmail') || 'contact@cafirm.com';
+            voice = voice || localStorage.getItem('ownerVoice') || '+91 12345 67890';
+
+            try {
+                // Post to settings sync endpoint
+                const response = await fetch('/api/owner-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        business_name: bizName,
+                        whatsapp: wa,
+                        instagram: ig,
+                        email: email,
+                        voice: voice
+                    })
+                });
+                
+                // If successful, also update the RAG system so the AI knows who it represents
+                if (response.ok) {
+                    const ragContext = `Our business name is "${bizName}". We are a Chartered Accountancy (CA) firm providing tax audit, GST filing, corporate registrations, bookkeeping, and financial consulting. 
+Contact channels: WhatsApp is ${wa}, Instagram handle is ${ig}, Email address is ${email}, and Phone Voice call is ${voice}. 
+Always reply politely and professionally on behalf of "${bizName}". Refer to our brand name in responses when appropriate.`;
+                    
+                    await fetch('/api/upload-rag', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: ragContext })
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to sync owner settings to backend:", err);
+            }
+        }
+
+        function updateOwnerDisplays() {
+            const bizName = localStorage.getItem('ownerBusinessName') || 'Karan & Associates CA';
+            const wa = localStorage.getItem('ownerWhatsapp') || '+91 98765 43210';
+            const ig = localStorage.getItem('ownerInstagram') || '@your_ca_firm';
+            const email = localStorage.getItem('ownerEmail') || 'contact@cafirm.com';
+            const voice = localStorage.getItem('ownerVoice') || '+91 12345 67890';
+
+            if (document.getElementById('summaryBizName')) document.getElementById('summaryBizName').innerText = bizName;
+            if (document.getElementById('summaryWhatsapp')) document.getElementById('summaryWhatsapp').innerText = wa;
+            if (document.getElementById('summaryInstagram')) document.getElementById('summaryInstagram').innerText = ig;
+            if (document.getElementById('summaryEmail')) document.getElementById('summaryEmail').innerText = email;
+            if (document.getElementById('summaryVoice')) document.getElementById('summaryVoice').innerText = voice;
+
+            updateSimOwnerChannelDisplay();
+
+            // If an active conversation is selected, update its channel/owner header display
+            if (activeConvId) {
+                const conv = conversations.find(c => c.id === activeConvId);
+                if (conv) {
+                    let ownerContact = '';
+                    if (conv.channel === 'WhatsApp') ownerContact = wa;
+                    else if (conv.channel === 'Instagram') ownerContact = ig;
+                    else if (conv.channel === 'Email') ownerContact = email;
+                    else if (conv.channel === 'Voice Call') ownerContact = voice;
+                    else ownerContact = 'Not set';
+
+                    document.getElementById('activeChatContact').innerText = `${conv.channel} • Customer: ${conv.contact} ➔ Business: ${ownerContact}`;
+                }
+            }
+        }
+
+        function updateSimOwnerChannelDisplay() {
+            const channel = document.getElementById('simChannel').value;
+            const textEl = document.getElementById('simChannelOwnerText');
+            if (!textEl) return;
+            
+            if (channel === 'WhatsApp') {
+                const val = localStorage.getItem('ownerWhatsapp') || '+91 98765 43210';
+                textEl.innerText = `Targeting Business WA: ${val}`;
+            } else if (channel === 'Instagram') {
+                const val = localStorage.getItem('ownerInstagram') || '@your_ca_firm';
+                textEl.innerText = `Targeting Handle: ${val}`;
+            } else if (channel === 'Email') {
+                const val = localStorage.getItem('ownerEmail') || 'contact@cafirm.com';
+                textEl.innerText = `Targeting Inbox: ${val}`;
+            } else if (channel === 'Voice Call') {
+                const val = localStorage.getItem('ownerVoice') || '+91 12345 67890';
+                textEl.innerText = `Targeting Phone: ${val}`;
+            } else {
+                textEl.innerText = `Targeting General Channel`;
+            }
+        }
+
+        // Toast Helper
+        function showToast(message, isInfo = true) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toastText');
+            toastText.innerText = message;
+            toast.style.background = isInfo ? 'rgba(139, 92, 246, 0.95)' : 'rgba(16, 185, 129, 0.95)';
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateY(100px)';
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+
+        // Fetch conversations from API
+        async function fetchConversations(selectFirst = false) {
+            try {
+                const response = await fetch('/api/conversations');
+                conversations = await response.json();
+                renderConversations();
+                
+                if (selectFirst && conversations.length > 0) {
+                    selectConversation(conversations[0].id);
+                } else if (activeConvId) {
+                    // Update active conversation view in case data refreshed
+                    const updated = conversations.find(c => c.id === activeConvId);
+                    if (updated) {
+                        renderChatHistory(updated);
+                        updateLeadProfile(updated.lead_profile);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching conversations:", error);
+            }
+        }
+
+        // Fetch dashboard statistics
+        async function fetchPlatformStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const stats = await res.json();
+                
+                // Update live badge for Gemini status
+                const badge = document.getElementById('geminiBadge');
+                const text = document.getElementById('geminiBadgeText');
+                if (stats.gemini_active) {
+                    badge.className = 'status-badge gemini-live';
+                    text.innerText = 'Gemini 1.5 Live';
+                } else {
+                    badge.className = 'status-badge gemini-simulated';
+                    text.innerText = 'AI Core Simulated';
+                }
+            } catch (err) {
+                console.error("Error fetching stats:", err);
+            }
+        }
+
+        // Fetch and show booked appointments
+        async function fetchAppointments() {
+            try {
+                const res = await fetch('/api/appointments');
+                const appointments = await res.json();
+                
+                const container = document.getElementById('calendarSlotsContainer');
+                container.innerHTML = '';
+                
+                if (appointments.length === 0) {
+                    container.innerHTML = `
+                        <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center; padding: 10px 0;">
+                            No appointments booked.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                appointments.forEach(apt => {
+                    const channelClass = apt.channel === 'Voice Call' ? 'active-voice' : (apt.channel === 'WhatsApp' ? 'active-whatsapp' : '');
+                    const slotHtml = `
+                        <div class="calendar-slot-card ${channelClass}">
+                            <div>
+                                <div class="calendar-slot-time">${apt.datetime}</div>
+                                <div class="calendar-slot-info">${apt.name} (${apt.channel})</div>
+                            </div>
+                            <i class="fa-regular fa-clock text-muted"></i>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', slotHtml);
+                });
+            } catch (err) {
+                console.error("Failed to load appointments:", err);
+            }
+        }
+
+        // Render Sidebar Conversation List
+        function renderConversations() {
+            const container = document.getElementById('conversationListContainer');
+            container.innerHTML = '';
+            
+            const filtered = selectedChannelFilter === 'All' 
+                ? conversations 
+                : conversations.filter(c => c.channel === selectedChannelFilter);
+                
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem;">
+                        No leads in this channel.
+                    </div>
+                `;
+                return;
+            }
+            
+            filtered.forEach(conv => {
+                const isActive = conv.id === activeConvId ? 'active' : '';
+                const lastMsg = conv.messages[conv.messages.length - 1];
+                const snippet = lastMsg ? lastMsg.text : 'No messages yet';
+                
+                const channelIcons = {
+                    'WhatsApp': '<i class="fa-brands fa-whatsapp channel-tag-whatsapp"></i>',
+                    'Instagram': '<i class="fa-brands fa-instagram channel-tag-instagram"></i>',
+                    'Facebook': '<i class="fa-brands fa-facebook channel-tag-facebook"></i>',
+                    'LinkedIn': '<i class="fa-brands fa-linkedin channel-tag-linkedin"></i>',
+                    'Email': '<i class="fa-solid fa-envelope channel-tag-email"></i>',
+                    'Voice Call': '<i class="fa-solid fa-phone-volume channel-tag-voice_call"></i>'
+                };
+                
+                const icon = channelIcons[conv.channel] || '<i class="fa-solid fa-message"></i>';
+                
+                const statusClasses = {
+                    'AI Replied': 'ai-replied',
+                    'Human Takeover': 'human-takeover',
+                    'Pending': 'pending'
+                };
+                const statusClass = statusClasses[conv.status] || 'pending';
+                
+                const unreadBadge = conv.unread_count > 0 
+                    ? `<div class="badge-unread">${conv.unread_count}</div>` 
+                    : '';
+
+                const cardHtml = `
+                    <div class="conv-card ${isActive}" onclick="selectConversation('${conv.id}')">
+                        <div class="conv-header">
+                            <span class="conv-name">${conv.name}</span>
+                            <span class="conv-channel">${icon} ${conv.channel}</span>
+                        </div>
+                        <div class="conv-snippet">${snippet}</div>
+                        <div class="conv-meta">
+                            <span class="status-tag ${statusClass}">${conv.status}</span>
+                            ${unreadBadge}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Channel filter tabs
+        function filterChannel(channel) {
+            selectedChannelFilter = channel;
+            
+            // Toggle active styling
+            const buttons = document.querySelectorAll('.channel-filter .filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            const mapping = {
+                'All': 0, 'WhatsApp': 1, 'Instagram': 2, 'Voice Call': 3, 'Email': 4
+            };
+            const index = mapping[channel];
+            if (index !== undefined) {
+                buttons[index].classList.add('active');
+            }
+            
+            renderConversations();
+        }
+
+        // Selection of active conversation
+        function selectConversation(convId) {
+            activeConvId = convId;
+            const conv = conversations.find(c => c.id === convId);
+            if (!conv) return;
+            
+            // Mark read locally
+            conv.unread_count = 0;
+            
+            // Update UI elements
+            document.getElementById('activeChatName').innerText = conv.name;
+            
+            // Get owner contact
+            let ownerContact = '';
+            if (conv.channel === 'WhatsApp') {
+                ownerContact = localStorage.getItem('ownerWhatsapp') || '+91 98765 43210';
+            } else if (conv.channel === 'Instagram') {
+                ownerContact = localStorage.getItem('ownerInstagram') || '@your_ca_firm';
+            } else if (conv.channel === 'Email') {
+                ownerContact = localStorage.getItem('ownerEmail') || 'contact@cafirm.com';
+            } else if (conv.channel === 'Voice Call') {
+                ownerContact = localStorage.getItem('ownerVoice') || '+91 12345 67890';
+            } else {
+                ownerContact = 'Not set';
+            }
+            document.getElementById('activeChatContact').innerText = `${conv.channel} • Customer: ${conv.contact} ➔ Business: ${ownerContact}`;
+            
+            document.getElementById('takeoverContainer').style.display = 'flex';
+            document.getElementById('chatFooter').style.display = 'block';
+            
+            // Toggle manual takeover switches
+            const isTakeover = conv.status === 'Human Takeover';
+            document.getElementById('takeoverToggle').checked = isTakeover;
+            document.getElementById('takeoverWarning').style.display = isTakeover ? 'flex' : 'none';
+            
+            renderChatHistory(conv);
+            updateLeadProfile(conv.lead_profile);
+            renderConversations(); // Redraw badges
+
+            // Voice Call Interface Overlay activation
+            const voiceOverlay = document.getElementById('voiceOverlay');
+            if (conv.channel === 'Voice Call') {
+                voiceOverlay.style.display = 'flex';
+                document.getElementById('voiceCallName').innerText = conv.name;
+                startVoiceCallTimer();
+            } else {
+                voiceOverlay.style.display = 'none';
+                endVoiceCallTimer();
+            }
+        }
+
+        // Render message thread list
+        function renderChatHistory(conv) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            if (conv.messages.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.85rem;">
+                        No messages in this chat.
+                    </div>
+                `;
+                return;
+            }
+            
+            conv.messages.forEach(msg => {
+                const rowClass = msg.sender === 'user' ? 'user' : (msg.sender === 'ai' ? 'ai' : 'human');
+                const senderName = msg.sender === 'user' ? conv.name : (msg.sender === 'ai' ? 'Auto-Reply AI' : 'Human Operator');
+                
+                const bubbleHtml = `
+                    <div class="message-row ${rowClass}">
+                        <div class="message-bubble">
+                            <div style="white-space: pre-line;">${msg.text}</div>
+                            <div class="message-meta">
+                                <span class="sender-badge">${senderName}</span>
+                                <span>${msg.timestamp}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', bubbleHtml);
+            });
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Update active Lead profile dashboard
+        function updateLeadProfile(profile) {
+            document.getElementById('leadName').innerText = profile.lead_name;
+            document.getElementById('leadCompany').innerText = profile.lead_company;
+            document.getElementById('leadScore').innerText = `${profile.lead_score}%`;
+            document.getElementById('scoreBarFill').style.width = `${profile.lead_score}%`;
+            document.getElementById('leadContactInfo').innerText = profile.lead_phone !== 'N/A' ? profile.lead_phone : (profile.lead_email !== 'N/A' ? profile.lead_email : 'N/A');
+            document.getElementById('leadInterest').innerText = profile.lead_interest;
+            document.getElementById('leadSummary').innerText = profile.ai_summary;
+            
+            // Update Sentiment Icon
+            const sIcon = document.getElementById('sentimentIcon');
+            if (profile.lead_sentiment === 'Positive') {
+                sIcon.innerHTML = '<i class="fa-solid fa-face-smile" style="color: var(--accent-emerald);"></i>';
+                document.getElementById('scoreBarFill').style.background = 'linear-gradient(to right, var(--accent-purple), var(--accent-emerald))';
+            } else if (profile.lead_sentiment === 'Negative') {
+                sIcon.innerHTML = '<i class="fa-solid fa-face-frown" style="color: var(--accent-rose);"></i>';
+                document.getElementById('scoreBarFill').style.background = 'var(--accent-rose)';
+            } else {
+                sIcon.innerHTML = '<i class="fa-solid fa-face-meh" style="color: var(--accent-gold);"></i>';
+                document.getElementById('scoreBarFill').style.background = 'linear-gradient(to right, var(--accent-purple), var(--accent-gold))';
+            }
+        }
+
+        // Toggle human takeover via switch
+        async function toggleTakeover() {
+            if (!activeConvId) return;
+            
+            try {
+                const response = await fetch('/api/takeover', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conv_id: activeConvId })
+                });
+                const res = await response.json();
+                
+                // Update local conversation list
+                const conv = conversations.find(c => c.id === activeConvId);
+                if (conv) {
+                    conv.status = res.status;
+                    
+                    const isTakeover = res.status === 'Human Takeover';
+                    document.getElementById('takeoverWarning').style.display = isTakeover ? 'flex' : 'none';
+                    showToast(isTakeover ? "Manual Takeover Activated. AI paused." : "AI Automated Reply reactivated.");
+                    
+                    renderConversations();
+                    fetchPlatformStats();
+                }
+            } catch (err) {
+                console.error("Takeover toggle error:", err);
+            }
+        }
+
+        // Send manual message reply
+        async function sendManualReply() {
+            const input = document.getElementById('chatInputField');
+            const text = input.value.trim();
+            if (!text || !activeConvId) return;
+            
+            input.value = '';
+            
+            try {
+                const response = await fetch('/api/reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conv_id: activeConvId, text: text })
+                });
+                
+                const updatedConv = await response.json();
+                
+                // Update local DB
+                const idx = conversations.findIndex(c => c.id === activeConvId);
+                if (idx !== -1) {
+                    conversations[idx] = updatedConv;
+                }
+                
+                // Redraw UI
+                document.getElementById('takeoverToggle').checked = true;
+                document.getElementById('takeoverWarning').style.display = 'flex';
+                
+                renderChatHistory(updatedConv);
+                updateLeadProfile(updatedConv.lead_profile);
+                renderConversations();
+                fetchPlatformStats();
+            } catch (err) {
+                console.error("Manual reply sending failed:", err);
+            }
+        }
+
+        function handleInputKey(event) {
+            if (event.key === 'Enter') {
+                sendManualReply();
+            }
+        }
+
+        // Simulator Console Slide Action
+        function toggleSimulatorDrawer() {
+            document.getElementById('simulatorDrawer').classList.toggle('active');
+        }
+
+        // Apply templates to Simulator forms
+        function applyTemplate(type) {
+            const nameField = document.getElementById('simName');
+            const contactField = document.getElementById('simContact');
+            const msgField = document.getElementById('simMessage');
+            
+            if (type === 'pricing') {
+                nameField.value = "Rahul Kapoor";
+                contactField.value = "rahul.kapoor@venturehubs.in";
+                msgField.value = "Hey AutoSphere team, I am investigating your pricing packages. Can you send over a complete PDF price card showing CRM reseller discounts?";
+            } else if (type === 'appointment') {
+                nameField.value = "Kabir Saxena";
+                contactField.value = "+91 99887 76655";
+                msgField.value = "Hello! I saw your smart voice agent demo. I want to book a live zoom demo for tomorrow morning to see how you integrate voice call routing.";
+            } else if (type === 'integration') {
+                nameField.value = "Dr. Kiran Rao";
+                contactField.value = "kiran.rao@medsys.org.in";
+                msgField.value = "We are interested in your Pro automation package. But it is essential that we can sync all leads directly to our Salesforce enterprise cluster. Do you support native OAuth2 integrations?";
+            } else if (type === 'complaint') {
+                nameField.value = "Sneha Sharma";
+                contactField.value = "+91 98765 43210";
+                msgField.value = "I am having trouble importing my sheets. Can a human jump in and explain why my credentials are returning authorization errors?";
+            }
+        }
+
+        // Trigger simulation API call
+        async function triggerSimulation() {
+            const channel = document.getElementById('simChannel').value;
+            const name = document.getElementById('simName').value.trim() || 'Anonymous Lead';
+            const contact = document.getElementById('simContact').value.trim() || 'N/A';
+            const message = document.getElementById('simMessage').value.trim();
+            
+            if (!message) {
+                alert("Please write a message content to simulate!");
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        channel: channel,
+                        message: message,
+                        sender_name: name,
+                        sender_contact: contact
+                    })
+                });
+                
+                const updatedConv = await response.json();
+                
+                // Add or update locally
+                const idx = conversations.findIndex(c => c.id === updatedConv.id);
+                if (idx !== -1) {
+                    conversations[idx] = updatedConv;
+                } else {
+                    conversations.unshift(updatedConv);
+                }
+                
+                // Reset form and drawer
+                document.getElementById('simMessage').value = '';
+                toggleSimulatorDrawer();
+                
+                // Auto switch filter to "All" or simulated channel, then select
+                filterChannel('All');
+                selectConversation(updatedConv.id);
+                
+                showToast(`Incoming ${channel} lead simulated successfully!`, false);
+                
+                fetchPlatformStats();
+                fetchAppointments(); // Update calendar
+                
+                // If Google sheets active, toast Sheets save
+                if (sheetsConnected) {
+                    setTimeout(() => {
+                        showToast(`Lead '${name}' exported successfully to Google Sheets spreadsheet!`);
+                    }, 1200);
+                }
+
+                // If Voice call simulation, talk back!
+                if (channel === 'Voice Call') {
+                    setTimeout(() => {
+                        readLastAiReply();
+                    }, 1000);
+                }
+                
+            } catch (err) {
+                console.error("Simulation trigger failed:", err);
+            }
+        }
+
+        // Toggle simulated Google Sheets Sync status
+        async function toggleGoogleSheets() {
+            try {
+                const response = await fetch('/api/google-sheets-toggle', { method: 'POST' });
+                const res = await response.json();
+                
+                sheetsConnected = res.sheets_connected;
+                
+                // Update UI elements
+                const badge = document.getElementById('sheetsStatusBadge');
+                const text = document.getElementById('sheetsStatusText');
+                const btn = document.getElementById('sheetsToggleBtn');
+                const light = document.getElementById('sheetsStatusLight');
+                
+                if (sheetsConnected) {
+                    badge.className = 'status-badge gemini-live';
+                    badge.innerHTML = '<i class="fa-solid fa-table-cells"></i> Sheets: Connected';
+                    text.innerText = 'Connected';
+                    text.style.color = 'var(--accent-emerald)';
+                    light.className = 'status-light active';
+                    btn.innerText = 'Disconnect Sheets Sync';
+                    btn.style.color = 'var(--accent-rose)';
+                    showToast("Google Sheets synchronization successfully activated!", false);
+                } else {
+                    badge.className = 'status-badge gemini-simulated';
+                    badge.innerHTML = '<i class="fa-solid fa-table-cells"></i> Sheets: Disconnected';
+                    text.innerText = 'Offline';
+                    text.style.color = 'var(--text-secondary)';
+                    light.className = 'status-light inactive';
+                    btn.innerText = 'Connect Sheets Sync';
+                    btn.style.color = 'var(--text-primary)';
+                    showToast("Google Sheets disconnected.");
+                }
+            } catch (err) {
+                console.error("Sheets toggle failed:", err);
+            }
+        }
+
+        // Save custom FAQ / RAG Knowledge base context
+        async function saveRagKnowledge() {
+            const text = document.getElementById('ragTextArea').value.trim();
+            if (!text) {
+                alert("Please add some context text first!");
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/upload-rag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: text })
+                });
+                
+                const res = await response.json();
+                if (res.success) {
+                    showToast("RAG database updated! AI replies will adapt.", false);
+                }
+            } catch (err) {
+                console.error("RAG upload failed:", err);
+            }
+        }
+
+        // Handle File upload (PDF/Text) for RAG
+        async function handleRagFileUpload() {
+            const fileInput = document.getElementById('ragFileInput');
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            showToast(`Uploading and chunking document: "${file.name}"...`, false);
+            
+            const formData = new FormData();
+            formData.append("file", file);
+            
+            try {
+                const response = await fetch('/api/upload-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const res = await response.json();
+                if (res.success) {
+                    document.getElementById('ragTextArea').value = `Loaded ${res.chars} chars from file "${res.filename}" into Gemini RAG Engine (${res.chunks} chunks).`;
+                    showToast(`RAG successfully loaded ${res.chunks} vector search chunks!`, false);
+                }
+            } catch (err) {
+                console.error("RAG File upload failed:", err);
+                showToast("File upload failed. Ensure server has pypdf dependency.");
+            }
+            
+            fileInput.value = ''; // Reset
+        }
+
+        // ----------------- INTERACTIVE VOICE SIMULATION (WEB SPEECH) -----------------
+        
+        let recognition = null;
+        let isVoiceInputActive = false;
+
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.error("Web Speech Recognition not supported in this browser.");
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isVoiceInputActive = true;
+                const btn = document.getElementById('voiceSpeakBtn');
+                btn.classList.add('recording');
+                btn.innerHTML = '<i class="fa-solid fa-microphone-lines"></i>';
+                document.getElementById('voiceCallStatus').innerText = "Listening to your voice...";
+                
+                // Slow down visual waveform speed to represent user speech
+                const waveBars = document.querySelectorAll('.wave-bar');
+                waveBars.forEach(bar => bar.style.animationDuration = '0.8s');
+            };
+
+            recognition.onend = () => {
+                isVoiceInputActive = false;
+                const btn = document.getElementById('voiceSpeakBtn');
+                btn.classList.remove('recording');
+                btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                document.getElementById('voiceCallStatus').innerText = "Voice Agent Connected";
+                
+                const waveBars = document.querySelectorAll('.wave-bar');
+                waveBars.forEach(bar => bar.style.animationDuration = '1.2s');
+            };
+
+            recognition.onresult = async (event) => {
+                const transcript = event.results[0][0].transcript;
+                if (transcript.trim()) {
+                    showToast(`Speech recognized: "${transcript}"`, false);
+                    
+                    const activeConv = conversations.find(c => c.id === activeConvId);
+                    if (!activeConv) return;
+                    
+                    try {
+                        const response = await fetch('/api/simulate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                channel: 'Voice Call',
+                                message: `[Spoken Call]: ${transcript}`,
+                                sender_name: activeConv.name,
+                                sender_contact: activeConv.contact
+                            })
+                        });
+                        
+                        const updatedConv = await response.json();
+                        
+                        // Update local db
+                        const idx = conversations.findIndex(c => c.id === activeConvId);
+                        if (idx !== -1) {
+                            conversations[idx] = updatedConv;
+                        }
+                        
+                        // Redraw Chat Area
+                        renderChatHistory(updatedConv);
+                        updateLeadProfile(updatedConv.lead_profile);
+                        renderConversations();
+                        fetchPlatformStats();
+                        fetchAppointments(); // Update appointments
+                        
+                        // Speak back the AI's reply instantly!
+                        setTimeout(() => {
+                            readLastAiReply();
+                        }, 500);
+                    } catch (err) {
+                        console.error("Voice simulation capture failed:", err);
+                    }
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                showToast("Speech recognition error. Try speaking closer to mic.");
+            };
+        }
+
+        function toggleVoiceInput() {
+            if (!recognition) {
+                initSpeechRecognition();
+            }
+            if (!recognition) {
+                alert("Your browser does not support Speech Recognition. Speak simulation skipped.");
+                return;
+            }
+
+            if (isVoiceInputActive) {
+                recognition.stop();
+            } else {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel(); // Stop talking first
+                }
+                recognition.start();
+            }
+        }
+
+        function readLastAiReply() {
+            if (!activeConvId) return;
+            const conv = conversations.find(c => c.id === activeConvId);
+            if (!conv || conv.messages.length === 0) return;
+            
+            // Find last AI reply
+            const replies = conv.messages.filter(m => m.sender === 'ai');
+            if (replies.length === 0) return;
+            
+            let replyText = replies[replies.length - 1].text;
+            replyText = replyText.replace("[Voice Agent]:", "").trim();
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(replyText);
+                const voices = window.speechSynthesis.getVoices();
+                const premiumVoice = voices.find(v => v.name.includes("Google") && v.lang.includes("en")) || voices[0];
+                if (premiumVoice) {
+                    utterance.voice = premiumVoice;
+                }
+                
+                utterance.rate = 1.0;
+                utterance.pitch = 1.05;
+                
+                const waveBars = document.querySelectorAll('.wave-bar');
+                waveBars.forEach(bar => bar.style.animationDuration = '0.5s');
+                
+                utterance.onend = () => {
+                    waveBars.forEach(bar => bar.style.animationDuration = '1.2s');
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Your browser does not support Speech Synthesis. Audio synthesis skipped.");
+            }
+        }
+
+        function startVoiceCallTimer() {
+            endVoiceCallTimer();
+            let seconds = 0;
+            const timerEl = document.getElementById('voiceCallTimer');
+            document.getElementById('voiceCallStatus').innerText = "Voice Agent Connected";
+            
+            callTimerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                timerEl.innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // End voice timer & cancels synthesizers
+        function endVoiceCallTimer() {
+            if (callTimerInterval) {
+                clearInterval(callTimerInterval);
+                callTimerInterval = null;
+            }
+            document.getElementById('voiceCallTimer').innerText = '00:00';
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            if (recognition && isVoiceInputActive) {
+                recognition.stop();
+            }
+        }
+
+        function endVoiceCall() {
+            const voiceOverlay = document.getElementById('voiceOverlay');
+            voiceOverlay.style.display = 'none';
+            endVoiceCallTimer();
+            showToast("Voice call simulation completed.");
+        }
+
+        // ----------------- ANALYTICS & CHARTS CODE (Differentiator!) -----------------
+
+        let channelChart = null;
+        let sentimentChart = null;
+
+        function openAnalyticsModal() {
+            document.getElementById('analyticsModal').classList.add('active');
+            renderCharts();
+        }
+
+        function closeAnalyticsModal() {
+            document.getElementById('analyticsModal').classList.remove('active');
+        }
+
+        async function renderCharts() {
+            try {
+                const res = await fetch('/api/stats');
+                const stats = await res.json();
+                
+                // Update key figures
+                document.getElementById('metricAvgScore').innerText = `${stats.avg_score}%`;
+                document.getElementById('metricAiRate').innerText = `${stats.ai_reply_rate}%`;
+                document.getElementById('metricTotalLeads').innerText = stats.total_leads;
+                
+                // Render bar chart for Channels
+                const ctxChannel = document.getElementById('channelChart').getContext('2d');
+                if (channelChart) channelChart.destroy();
+                
+                const channelLabels = stats.channels.map(c => c.channel);
+                const channelCounts = stats.channels.map(c => c.count);
+                
+                channelChart = new Chart(ctxChannel, {
+                    type: 'bar',
+                    data: {
+                        labels: channelLabels,
+                        datasets: [{
+                            label: 'Leads by Channel',
+                            data: channelCounts,
+                            backgroundColor: ['#25d366', '#e1306c', '#06b6d4', '#8b5cf6', '#fbbf24', '#f43f5e'],
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Operational Lead Load by Channel',
+                                color: '#f3f4f6',
+                                font: { family: 'Outfit', size: 13, weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 10 } } },
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0, color: '#9ca3af', font: { size: 10 } } }
+                        }
+                    }
+                });
+                
+                // Render doughnut chart for sentiment
+                const ctxSentiment = document.getElementById('sentimentChart').getContext('2d');
+                if (sentimentChart) sentimentChart.destroy();
+                
+                sentimentChart = new Chart(ctxSentiment, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Positive', 'Neutral', 'Negative'],
+                        datasets: [{
+                            data: [stats.sentiment.Positive, stats.sentiment.Neutral, stats.sentiment.Negative],
+                            backgroundColor: ['#10b981', '#fbbf24', '#f43f5e'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: '#9ca3af', font: { family: 'Plus Jakarta Sans', size: 10 } }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Real-Time Sentiment Analysis',
+                                color: '#f3f4f6',
+                                font: { family: 'Outfit', size: 13, weight: 'bold' }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (err) {
+                console.error("Failed to render analytics metrics:", err);
+            }
+        }
+    </script>
+</body>
+</html>
